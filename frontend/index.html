@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InstantDownload - Universal Video Downloader</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+  <!-- ========== NAVBAR ========== -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-brand">
+        <i class="fas fa-bolt nav-logo"></i>
+        <span class="nav-title">Instant<span class="accent">Download</span></span>
+      </div>
+      <div class="nav-links">
+        <a href="#home" class="nav-link active"><i class="fas fa-home"></i> Home</a>
+        <a href="#how-it-works" class="nav-link"><i class="fas fa-info-circle"></i> How It Works</a>
+        <a href="#platforms" class="nav-link"><i class="fas fa-globe"></i> Platforms</a>
+      </div>
+      <div class="nav-cta">
+        <span class="supported-badge"><i class="fas fa-check-circle"></i> 50+ Sites</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========== HERO SECTION ========== -->
+  <section id="home" class="hero">
+    <div class="hero-bg">
+      <div class="gradient-sphere sphere-1"></div>
+      <div class="gradient-sphere sphere-2"></div>
+      <div class="gradient-sphere sphere-3"></div>
+    </div>
+    
+    <div class="hero-content">
+      <div class="badge-container">
+        <span class="badge"><i class="fas fa-bolt"></i> Fast & Free</span>
+        <span class="badge"><i class="fas fa-shield-alt"></i> 100% Safe</span>
+        <span class="badge"><i class="fas fa-infinity"></i> Unlimited</span>
+      </div>
+
+      <h1 class="hero-title">
+        Download Any Video<br>
+        <span class="gradient-text">From Any Platform</span>
+      </h1>
+      
+      <p class="hero-subtitle">
+        YouTube, Instagram, TikTok, Facebook, Twitter & 50+ more sites.
+        Just paste the link and download in HD quality. <strong>100% free.</strong>
+      </p>
+
+      <!-- ====== MAIN INPUT ====== -->
+      <div class="download-card">
+        <div class="input-group">
+          <i class="fas fa-link input-icon"></i>
+          <input type="url" id="videoUrl" placeholder="Paste your video link here (YouTube, Instagram, TikTok...)" autocomplete="off">
+          <button id="fetchBtn" class="btn-primary">
+            <span class="btn-text">Get Video</span>
+            <i class="fas fa-arrow-right btn-icon"></i>
+          </button>
+        </div>
+        
+        <div class="supported-platforms">
+          <span>Supported:</span>
+          <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/youtube.svg" alt="YouTube" title="YouTube" onerror="this.style.display='none'">
+          <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg" alt="Instagram" title="Instagram" onerror="this.style.display='none'">
+          <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/tiktok.svg" alt="TikTok" title="TikTok" onerror="this.style.display='none'">
+          <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/facebook.svg" alt="Facebook" title="Facebook" onerror="this.style.display='none'">
+          <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/x.svg" alt="Twitter/X" title="Twitter/X" onerror="this.style.display='none'">
+          <span class="more-text">+50 more</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== LOADING ========== -->
+  <section id="loadingSection" class="section hidden">
+    <div class="loading-container">
+      <div class="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-ring"></div>
+      </div>
+      <h3>Fetching your video...</h3>
+      <div class="progress-bar">
+        <div class="progress-fill"></div>
+      </div>
+      <p class="loading-sub">Analyzing link and fetching available qualities</p>
+    </div>
+  </section>
+
+  <!-- ========== VIDEO INFO ========== -->
+  <section id="resultSection" class="section hidden">
+    <div class="result-container">
+      <div class="result-header">
+        <div class="platform-badge">
+          <i class="fas fa-check-circle"></i>
+          <span id="platformName">YouTube</span>
+        </div>
+        <button id="newDownloadBtn" class="btn-ghost"><i class="fas fa-plus"></i> New Download</button>
+      </div>
+
+      <div class="video-info-card">
+        <div class="video-thumbnail">
+          <img id="videoThumbnail" src="" alt="Video Thumbnail">
+          <div class="duration-badge">
+            <i class="fas fa-clock"></i> <span id="videoDuration">0:00</span>
+          </div>
+        </div>
+        <div class="video-details">
+          <h2 id="videoTitle">Video Title</h2>
+          <div class="video-meta">
+            <span><i class="fas fa-user"></i> <span id="videoAuthor">Author</span></span>
+            <span><i class="fas fa-eye"></i> <span id="videoViews">0</span> views</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== FORMAT SELECTION ====== -->
+      <div class="formats-section">
+        <h3><i class="fas fa-download"></i> Choose Quality</h3>
+        <div id="formatsList" class="formats-grid">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== DOWNLOAD PROGRESS ========== -->
+  <section id="downloadProgress" class="section hidden">
+    <div class="loading-container download-progress">
+      <div class="download-animation">
+        <i class="fas fa-cloud-download-alt download-icon"></i>
+        <div class="pulse-ring"></div>
+      </div>
+      <h3>Preparing your download...</h3>
+      <div class="progress-bar">
+        <div class="progress-fill downloading"></div>
+      </div>
+      <p class="loading-sub" id="downloadStatus">Processing your file</p>
+    </div>
+  </section>
+
+  <!-- ========== HOW IT WORKS ========== -->
+  <section id="how-it-works" class="section how-section">
+    <div class="section-header">
+      <h2>How It <span class="gradient-text">Works</span></h2>
+      <p>Three simple steps to download any video</p>
+    </div>
+    
+    <div class="steps-container">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <i class="fas fa-link step-icon"></i>
+        <h3>Paste Link</h3>
+        <p>Copy the URL of any video from YouTube, Instagram, TikTok, or 50+ other platforms</p>
+      </div>
+      
+      <div class="step-connector">
+        <i class="fas fa-arrow-right"></i>
+      </div>
+      
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <i class="fas fa-sliders-h step-icon"></i>
+        <h3>Choose Quality</h3>
+        <p>Select your preferred quality from 4K to 144p, or download as MP3 audio only</p>
+      </div>
+      
+      <div class="step-connector">
+        <i class="fas fa-arrow-right"></i>
+      </div>
+      
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <i class="fas fa-check-circle step-icon"></i>
+        <h3>Download</h3>
+        <p>Click download and the file saves directly to your device. Fast and free!</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== PLATFORMS ========== -->
+  <section id="platforms" class="section platforms-section">
+    <div class="section-header">
+      <h2>Supported <span class="gradient-text">Platforms</span></h2>
+      <p>Download from all major video platforms</p>
+    </div>
+    
+    <div class="platforms-grid">
+      <div class="platform-card">
+        <i class="fab fa-youtube"></i>
+        <span>YouTube</span>
+      </div>
+      <div class="platform-card">
+        <i class="fab fa-instagram"></i>
+        <span>Instagram</span>
+      </div>
+      <div class="platform-card">
+        <i class="fab fa-tiktok"></i>
+        <span>TikTok</span>
+      </div>
+      <div class="platform-card">
+        <i class="fab fa-facebook"></i>
+        <span>Facebook</span>
+      </div>
+      <div class="platform-card">
+        <i class="fab fa-x-twitter"></i>
+        <span>Twitter/X</span>
+      </div>
+      <div class="platform-card">
+        <i class="fab fa-vimeo-v"></i>
+        <span>Vimeo</span>
+      </div>
+      <div class="platform-card">
+        <i class="fab fa-twitch"></i>
+        <span>Twitch</span>
+      </div>
+      <div class="platform-card">
+        <i class="fab fa-reddit-alien"></i>
+        <span>Reddit</span>
+      </div>
+      <div class="platform-card">
+        <i class="fab fa-linkedin"></i>
+        <span>LinkedIn</span>
+      </div>
+      <div class="platform-card">
+        <i class="fab fa-pinterest"></i>
+        <span>Pinterest</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <i class="fas fa-bolt"></i>
+        <span>InstantDownload</span>
+      </div>
+      <p class="footer-text">Universal video downloader. 100% free. No registration required.</p>
+      <div class="footer-links">
+        <span>&copy; 2026 InstantDownload</span>
+        <!-- ADSTERRA AD PLACEHOLDER - Footer -->
+        <div id="adstera-footer" class="ad-container">
+          <!-- Adsterra footer ad code will go here -->
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+
+  <!-- ADSTERRA POPUNDER SCRIPT - Place before closing body -->
+  <script type="text/javascript">
+    // ============================================================
+    // ADSTERRA ADS INTEGRATION
+    // ============================================================
+    // UNCOMMENT AND REPLACE WITH YOUR ACTUAL ADSTERRA CODES
+    
+    // --- Popunder Ad (shows once per visit) ---
+    // var adsterra_popunder = "YOUR_ADSTERRA_POPUNDER_CODE";
+    
+    // --- Banner Ad (shown in ad containers) ---
+    // var adsterra_banner = "YOUR_ADSTERRA_BANNER_CODE";
+    
+    console.log('InstantDownload ready - Add your Adsterra codes above');
+  </script>
+</body>
+</html>
