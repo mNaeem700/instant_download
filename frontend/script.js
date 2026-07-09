@@ -2,7 +2,11 @@
 // INSTANTDOWNLOAD - FRONTEND JAVASCRIPT
 // ============================================================
 
+<<<<<<< HEAD
 const API_BASE = '/.netlify/functions/api';
+=======
+const API_BASE = '/api';
+>>>>>>> b84f13289aa8d194c93f031ed9185cb1c344e07b
 
 // DOM Elements
 const videoUrlInput = document.getElementById('videoUrl');

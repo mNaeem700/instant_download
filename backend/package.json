@@ -1,6 +1,11 @@
 {
+<<<<<<< HEAD
   "name": "instant-download",
   "version": "1.0.0",
+=======
+  "name": "instant-download-backend",
+  "version": "2.0.0",
+>>>>>>> b84f13289aa8d194c93f031ed9185cb1c344e07b
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -8,9 +13,15 @@
   "dependencies": {
     "express": "^4.18.2",
     "cors": "^2.8.5",
+<<<<<<< HEAD
     "axios": "^1.6.7",
     "cheerio": "^1.0.0-rc.12",
     "morgan": "^1.9.1",
     "serverless-http": "^3.2.0"
+=======
+    "morgan": "^1.10.0",
+    "axios": "^1.6.7",
+    "cheerio": "^1.0.0-rc.12"
+>>>>>>> b84f13289aa8d194c93f031ed9185cb1c344e07b
   }
 }
