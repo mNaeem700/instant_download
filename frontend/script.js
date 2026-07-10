@@ -2,11 +2,7 @@
 // INSTANTDOWNLOAD - FRONTEND JAVASCRIPT
 // ============================================================
 
-<<<<<<< HEAD
-const API_BASE = '/.netlify/functions/api';
-=======
 const API_BASE = '/api';
->>>>>>> b84f13289aa8d194c93f031ed9185cb1c344e07b
 
 // DOM Elements
 const videoUrlInput = document.getElementById('videoUrl');
@@ -109,9 +105,6 @@ function showVideoInfo(data) {
   formatsList.innerHTML = '';
   
   if (data.formats && data.formats.length > 0) {
-    // Mark the best quality
-    const bestFormat = data.formats[0];
-    
     data.formats.forEach((format, index) => {
       const card = document.createElement('div');
       card.className = `format-card${index === 0 ? ' best' : ''}`;
@@ -131,34 +124,36 @@ function showVideoInfo(data) {
       
       card.querySelector('.download-btn').addEventListener('click', (e) => {
         e.stopPropagation();
-        handleDownload(data.url, format.format_id || 'best', qualityLabel);
+        handleDownload(format.url, qualityLabel, data.title || 'video');
       });
       
       formatsList.appendChild(card);
     });
   } else {
-    // Fallback formats
+    // Fallback
     const fallbackFormats = [
-      { label: 'Best Quality', ext: 'mp4', format: 'best', size: '~MB', best: true },
-      { label: 'Medium', ext: 'mp4', format: '18', size: '~MB' },
-      { label: 'Audio Only', ext: 'mp3', format: 'bestaudio', size: '~MB' }
+      { label: 'Open Video', ext: 'mp4', url: data.url || '', best: true }
     ];
     
-    fallbackFormats.forEach((fmt, idx) => {
+    fallbackFormats.forEach((fmt) => {
       const card = document.createElement('div');
       card.className = `format-card${fmt.best ? ' best' : ''}`;
       card.innerHTML = `
         <span class="quality">${fmt.label}</span>
         <span class="ext">${fmt.ext.toUpperCase()}</span>
-        <span class="size">${fmt.size}</span>
-        <button class="download-btn" data-format="${fmt.format}">
+        <span class="size">~MB</span>
+        <button class="download-btn">
           <i class="fas fa-download"></i> Download
         </button>
       `;
       
       card.querySelector('.download-btn').addEventListener('click', (e) => {
         e.stopPropagation();
-        handleDownload(data.url, fmt.format, fmt.label);
+        if (fmt.url) {
+          window.open(fmt.url, '_blank');
+        } else {
+          showToast('No download URL available', 'error');
+        }
       });
       
       formatsList.appendChild(card);
@@ -166,66 +161,90 @@ function showVideoInfo(data) {
   }
 
   resultSection.classList.remove('hidden');
-  
-  // Smooth scroll to result
   resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ====== HANDLE DOWNLOAD ======
 
-async function handleDownload(url, format, qualityLabel) {
-  if (isDownloading) return;
+async function handleDownload(url, qualityLabel, title) {
+  if (isDownloading || !url) return;
   isDownloading = true;
-
   hideAllSections();
   downloadProgress.classList.remove('hidden');
   downloadStatus.textContent = `Preparing ${qualityLabel} download...`;
 
   try {
+    // Tell backend to fetch the video for us
     const response = await fetch(`${API_BASE}/download`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url, format_id: format })
+      body: JSON.stringify({ 
+        url, 
+        format_id: 'best',
+        filename: `${title.replace(/[^a-zA-Z0-9]/g, '_')}.mp4`
+      })
     });
 
     const result = await response.json();
+    if (!result.success) throw new Error(result.error || 'Download failed');
 
-    if (!result.success) {
-      throw new Error(result.error || 'Download failed');
+    const { downloadUrl, proxied, direct, filename, sizeFormatted } = result.data;
+
+    downloadStatus.textContent = `Downloading ${sizeFormatted || 'video'}...`;
+
+    if (proxied && downloadUrl.startsWith('data:')) {
+      // Backend fetched the video and returned as base64 - force download
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = filename || 'video.mp4';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('Download started!', 'success');
+    } 
+    else if (direct) {
+      // Try to fetch the URL directly from the frontend
+      try {
+        downloadStatus.textContent = 'Fetching from source...';
+        const blobRes = await fetch(url, {
+          headers: { 
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+            'Accept': 'video/mp4,video/*,*/*'
+          }
+        });
+        
+        if (blobRes.ok) {
+          const blob = await blobRes.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = blobUrl;
+          link.download = filename || 'video.mp4';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+          showToast('Download started!', 'success');
+        } else {
+          // Last resort: open in new tab
+          window.open(url, '_blank');
+          showToast('Opening in new tab...', 'info');
+        }
+      } catch (e) {
+        window.open(url, '_blank');
+        showToast('Opening in new tab...', 'info');
+      }
     }
 
-    downloadStatus.textContent = 'Download starting...';
-
-    // Trigger file download via direct link
-    const downloadLink = document.createElement('a');
-    downloadLink.href = result.data.downloadUrl;
-    downloadLink.download = result.data.filename || 'video.mp4';
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
-
-    showToast('Download started!', 'success');
-
-    // After download starts, show the video info again
     setTimeout(() => {
-      if (currentVideoData) {
-        hideAllSections();
-        showVideoInfo(currentVideoData);
-      } else {
-        resetToHome();
-      }
+      if (currentVideoData) { hideAllSections(); showVideoInfo(currentVideoData); }
+      else resetToHome();
       isDownloading = false;
     }, 2000);
 
   } catch (error) {
-    console.error('Download error:', error);
-    showToast(error.message || 'Download failed. Try another quality.', 'error');
-    if (currentVideoData) {
-      hideAllSections();
-      showVideoInfo(currentVideoData);
-    } else {
-      resetToHome();
-    }
+    showToast(error.message || 'Download failed.', 'error');
+    if (currentVideoData) { hideAllSections(); showVideoInfo(currentVideoData); }
+    else resetToHome();
     isDownloading = false;
   }
 }
@@ -280,7 +299,7 @@ function formatFileSize(bytes) {
 
 function shakeElement(el) {
   el.style.animation = 'none';
-  el.offsetHeight; // Trigger reflow
+  el.offsetHeight;
   el.style.animation = 'shake 0.4s ease';
 }
 
@@ -304,11 +323,8 @@ function showToast(message, type = 'info') {
   `;
   
   document.body.appendChild(toast);
-  
-  // Animate in
   requestAnimationFrame(() => toast.classList.add('show'));
   
-  // Auto remove
   setTimeout(() => {
     toast.classList.remove('show');
     setTimeout(() => toast.remove(), 300);
